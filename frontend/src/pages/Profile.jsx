@@ -23,8 +23,8 @@ function Profile() {
                         <span className="text-4xl text-blue-800 font-bold ">13/12/2002</span>
                     </p>
                     <p>
-                        <span className="text-4xl font-bold">Quê quán: </span>
-                        <span className="text-4xl text-blue-800 font-bold">Hải Dương</span>
+                        <span className="text-4xl font-bold">Lớp: </span>
+                        <span className="text-4xl text-blue-800 font-bold">CNPM4</span>
                     </p>
                     <p>
                         <span className="text-4xl font-bold">Ngành: </span>

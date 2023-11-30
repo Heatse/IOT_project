@@ -52,7 +52,7 @@ function Dashboard() {
         // // Tạo một interval để cập nhật dữ liệu mỗi 5 giây
         const interval = setInterval(() => {
             fetchData();
-        }, 5000);
+        }, 2000);
 
         return () => {
             clearInterval(interval);
@@ -61,7 +61,7 @@ function Dashboard() {
 
     // State to store historical data for the chart
     const [chartData, setChartData] = useState({
-        labels: [new Date().toLocaleTimeString()], // Bắt đầu với một thời điểm ban đầu
+        labels: [], // Bắt đầu với một thời điểm ban đầu
         datasets: [
             {
                 label: 'Temperature',
@@ -147,11 +147,11 @@ function Dashboard() {
         let colorStops = [];
 
         if (value < lowThreshold) {
-            colorStops = ['lightblue', 'blue'];
+            colorStops = ['white', 'lightblue'];
         } else if (value >= lowThreshold && value <= mediumThreshold) {
-            colorStops = ['blue', 'green'];
+            colorStops = ['lightblue', 'blue'];
         } else if (value >= mediumThreshold && value <= highThreshold) {
-            colorStops = ['green', 'yellow'];
+            colorStops = ['blue', 'yellow'];
         } else {
             colorStops = ['yellow', 'red'];
         }
@@ -163,13 +163,13 @@ function Dashboard() {
         let colorStops = [];
 
         if (value < lowThreshold) {
-            colorStops = ['darkblue', 'blue'];
+            colorStops = ['white', 'lightyellow'];
         } else if (value >= lowThreshold && value <= mediumThreshold) {
-            colorStops = ['blue', 'yellow'];
+            colorStops = ['lightyellow', 'yellow'];
         } else if (value >= mediumThreshold && value <= highThreshold) {
-            colorStops = ['yellow', 'orange'];
+            colorStops = ['yellow', 'yellow'];
         } else {
-            colorStops = ['orange', 'red'];
+            colorStops = ['yellow', 'red'];
         }
 
         return `linear-gradient(to bottom, ${colorStops[0]}, ${colorStops[1]})`;
@@ -207,24 +207,24 @@ function Dashboard() {
         <div className="flex flex-1 flex-col px-20 pt-8">
             <div className=" grid grid-cols-3 auto-fill gap-4 pb-4">
                 <div className="flex flex-col items-center gap-2 px-2 py-4 cursor-pointer rounded-xl" style={{ background: createTemperatureGradient(temperature, 13, 25, 35) }}>
-                    <Thermometer width={120} height={120} color="white" />
-                    <p className={`text-6xl font-bold flex text-white`}>
+                    <Thermometer width={120} height={120} color="gray   " />
+                    <p className={`text-6xl font-bold flex text-gray-700`}>
                         {temperature} <TbTemperatureCelsius />
                     </p>
                     <p className="text-lg text-white">Nhiệt độ</p>
                 </div>
 
                 <div className="flex flex-col items-center gap-2 px-2 py-4 cursor-pointer rounded-xl" style={{ background: createHumidityGradient(humidity, 15, 40, 70) }}>
-                    <Droplets width={120} height={120} color="white" />
-                    <p className={`text-6xl font-bold text-white`}>
+                    <Droplets width={120} height={120} color="gray" />
+                    <p className={`text-6xl font-bold text-gray-700`}>
                         {humidity} %
                     </p>
                     <p className="text-lg text-white">Độ ẩm</p>
                 </div>
 
-                <div className="flex flex-col items-center gap-2 px-2 py-4 cursor-pointer rounded-xl" style={{ background: createBrightnessGradient(brightness, 200, 400, 700) }}>
-                    <Sun width={120} height={120} color="white" />
-                    <p className={`text-6xl font-bold text-white`}>
+                <div className="flex flex-col items-center gap-2 px-2 py-4 cursor-pointer rounded-xl" style={{ background: createBrightnessGradient(brightness, 100, 300, 600) }}>
+                    <Sun width={120} height={120} color="gray" />
+                    <p className={`text-6xl font-bold text-gray-700`}>
                         {brightness} LUX
                     </p>
                     <p className="text-lg text-white">Độ Sáng</p>

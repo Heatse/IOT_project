@@ -18,7 +18,7 @@ function HistoryAction() {
 
     // Sử dụng useEffect để gọi API và cập nhật dữ liệu
     useEffect(() => {
-        fetch('http://localhost:3000/api/historyac') // Điều chỉnh URL API theo địa chỉ thực tế
+        fetch('http://localhost:3000/api/device_actions') // Điều chỉnh URL API theo địa chỉ thực tế
             .then(response => response.json())
             .then(data => setData(data))
             .catch(error => console.error('Lỗi: ' + error));
@@ -82,8 +82,8 @@ function HistoryAction() {
                     <TableHead>
                         <TableRow>
                             <TableCell>ID</TableCell>
-                            <TableCell>Led</TableCell>
-                            <TableCell>Fan</TableCell>
+                            <TableCell>Device</TableCell>
+                            <TableCell>Action</TableCell>
                             <TableCell>Time</TableCell>
                         </TableRow>
                     </TableHead>
@@ -94,8 +94,8 @@ function HistoryAction() {
                                 className="border-b transition duration-300 ease-in-out hover:bg-neutral-100 dark:border-neutral-500 dark:hover-bg-neutral-600"
                             >
                                 <TableCell>{item.id}</TableCell>
-                                <TableCell>{item.led}</TableCell>
-                                <TableCell>{item.fan}</TableCell>
+                                <TableCell>{item.device_name}</TableCell>
+                                <TableCell>{item.action}</TableCell>
                                 <TableCell>{formatTime(item.time)}</TableCell>
                             </TableRow>
                         ))}

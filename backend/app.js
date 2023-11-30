@@ -23,7 +23,7 @@ const db = mysql.createConnection({
     database: 'iotproject', // Thay đổi tên cơ sở dữ liệu
 });
 
-const mqttServer = 'mqtt://192.168.43.205'; // Địa chỉ IP hoặc tên miền của MQTT broker
+const mqttServer = 'mqtt://172.20.10.7'; // Địa chỉ IP hoặc tên miền của MQTT broker
 const username = 'admin';
 const password = '12345678';
 
@@ -80,65 +80,62 @@ app.post('/api/datalog', (req, res) => {
     });
 });
 
-app.get('/api/historyac', (req, res) => {
-    const query = 'SELECT * FROM historyac'; // Truy vấn SQL
+app.get('/api/device_actions', (req, res) => {
+    const selectQuery = 'SELECT * FROM device_actions';
 
-    db.query(query, (err, results) => {
+    db.query(selectQuery, (err, results) => {
         if (err) {
             console.error('Lỗi truy vấn MySQL: ' + err.message);
-            res.status(500).json({ error: 'Lỗi truy vấn MySQL' });
+            res.status(500).json({ error: 'Internal Server Error' });
         } else {
-            res.status(200).json(results);
+            res.json(results);
         }
     });
 });
 
-app.post('/api/historyac', (req, res) => {
-    const { led, fan } = req.body;
+app.post('/api/device_actions', (req, res) => {
+    const { device_name, action } = req.body;
 
-    // Kiểm tra xem "led" và "fan" có giá trị "on" hoặc "off"
-    if (led !== 'on' && led !== 'off' && fan !== 'on' && fan !== 'off') {
-        res.status(400).json({ error: 'Trạng thái không hợp lệ. Sử dụng "on" hoặc "off".' });
+    // Kiểm tra xem "device_name" và "action" có giá trị hợp lệ
+    if (!device_name || (action !== 'on' && action !== 'off')) {
+        res.status(400).json({ error: 'Dữ liệu không hợp lệ.' });
+        return;
     }
 
-    // Truy vấn SQL để cập nhật trạng thái led và fan
-    const query = 'INSERT INTO historyac (led, fan) VALUES (?, ?)';
+    // Chèn dữ liệu vào bảng device_actions chỉ cho đèn được chỉ định
+    const insertQuery = 'INSERT INTO device_actions (device_name, action) VALUES (?, ?)';
 
-    db.query(query, [led, fan], (err, results) => {
+    db.query(insertQuery, [device_name, action], (err, results) => {
         if (err) {
             console.error('Lỗi truy vấn MySQL: ' + err.message);
-            res.status(500).json({ error: 'Lỗi khi cập nhật trạng thái công tắc' });
+            res.status(500).json({ error: 'Lỗi truy vấn MySQL' });
         } else {
-            res.json({ success: 'Trạng thái công tắc đã được cập nhật' });
+            res.status(201).json({ message: 'Dữ liệu đã được thêm vào bảng device_actions' });
         }
     });
 });
 
-app.get('/api/dust', (req, res) => {
-    const query = 'SELECT * FROM dust'; // Truy vấn SQL
+app.get('/api/device_actions/toggleCount', (req, res) => {
+    const query = 'SELECT device_name, action, COUNT(*) as toggleCount FROM device_actions GROUP BY device_name, action';
 
     db.query(query, (err, results) => {
         if (err) {
             console.error('Lỗi truy vấn MySQL: ' + err.message);
             res.status(500).json({ error: 'Lỗi truy vấn MySQL' });
         } else {
-            res.status(200).json(results);
-        }
-    });
-});
+            const toggleCountData = {
+                fan: { on: 0, off: 0 },
+                led: { on: 0, off: 0 },
+            };
 
-app.post('/api/dust', (req, res) => {
-    const { dust } = req.body; // Lấy dữ liệu từ yêu cầu POST
+            // Xử lý kết quả trả về từ MySQL và cập nhật toggleCountData
+            results.forEach((row) => {
+                const deviceName = row.device_name;
+                const action = row.action;
+                toggleCountData[deviceName][action] = row.toggleCount;
+            });
 
-    // Truy vấn SQL để chèn dữ liệu vào bảng datalog
-    const query = 'INSERT INTO dust (dust) VALUES ?';
-
-    db.query(query, [dust], (err, results) => {
-        if (err) {
-            console.error('Lỗi truy vấn MySQL: ' + err.message);
-            res.status(500).json({ error: 'Lỗi truy vấn MySQL' });
-        } else {
-            res.status(201).json({ message: 'Dữ liệu đã được thêm vào cơ sở dữ liệu' });
+            res.status(200).json(toggleCountData);
         }
     });
 });
@@ -154,11 +151,7 @@ app.post('/api/publish', (req, res) => {
     // Tạo JSON object chứa thông tin LED và Fan ở dạng số 1 và 0
     const controlData = ledState + ' ' + fanState;
 
-    // Chuyển đổi dữ liệu thành chuỗi JSON
-    // const message = JSON.stringify(controlData);
-
-    // Xuất dữ liệu qua MQTT topic "control" (hoặc tên chủ đề bạn muốn)
-    const topic = 'control'; // Thay 'control' bằng tên chủ đề bạn muốn sử dụng
+    const topic = 'control';
     mqttClient.publish(topic, controlData, (error) => {
         if (error) {
             console.error('Lỗi khi xuất dữ liệu qua MQTT:', error);
@@ -169,6 +162,8 @@ app.post('/api/publish', (req, res) => {
         }
     });
 });
+
+
 
 
 export default app;
